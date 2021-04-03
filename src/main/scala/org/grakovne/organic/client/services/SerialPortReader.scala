@@ -19,7 +19,7 @@ class SerialPortReader(name: String) {
     val readBuffer = new Array[Byte](port.bytesAvailable)
 
     port.readBytes(readBuffer, readBuffer.length)
-    readBuffer.map(f => f.toChar).mkString
+    readBuffer.map(_.toChar).mkString
   }
 
   private def blockingWaitForData(): Unit = {
@@ -29,8 +29,7 @@ class SerialPortReader(name: String) {
   }
 
   private def requirePort(name: String): SerialPort = {
-    val port = SerialPort
-      .getCommPorts
+    val port = SerialPort.getCommPorts
       .filter(_.getDescriptivePortName == name)
       .toList match {
       case head :: Nil => head

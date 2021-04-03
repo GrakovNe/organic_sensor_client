@@ -12,7 +12,6 @@ class MeasurementAggregator(configuration: OrganicSensorClientConfiguration) ext
   }
 }
 
-
 object MeasurementAggregator {
   def apply(configuration: OrganicSensorClientConfiguration) = new MeasurementAggregator(configuration)
 }

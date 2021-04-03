@@ -5,7 +5,6 @@ import org.grakovne.organic.client.configuration.OrganicSensorClientConfiguratio
 import org.grakovne.organic.client.messages.{Measurement, ReadMeasurement}
 import org.grakovne.organic.client.services.{MeasurementParser, SerialPortReader}
 
-
 class MeasurementReader(aggregator: ActorRef, configuration: OrganicSensorClientConfiguration) extends Actor {
 
   private val serialPortReader: SerialPortReader = SerialPortReader(configuration.serialPortName)
@@ -17,7 +16,7 @@ class MeasurementReader(aggregator: ActorRef, configuration: OrganicSensorClient
   }
 }
 
-
 object MeasurementReader {
-  def apply(aggregator: ActorRef, configuration: OrganicSensorClientConfiguration) = new MeasurementReader(aggregator, configuration)
+  def apply(aggregator: ActorRef, configuration: OrganicSensorClientConfiguration) =
+    new MeasurementReader(aggregator, configuration)
 }

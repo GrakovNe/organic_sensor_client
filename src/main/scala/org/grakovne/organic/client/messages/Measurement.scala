@@ -4,10 +4,9 @@ final case class Measurement(tvoc: Int, carbonDioxide: Int, temperature: Double,
 
 class MeasurementBuilder {
   private var tvoc: Option[Int] = Option.empty[Int]
-  private var carbonDioxide: Option[Int]  = Option.empty[Int]
-  private var temperature: Option[Double]  = Option.empty[Double]
-  private var humidity: Option[Double]  = Option.empty[Double]
-
+  private var carbonDioxide: Option[Int] = Option.empty[Int]
+  private var temperature: Option[Double] = Option.empty[Double]
+  private var humidity: Option[Double] = Option.empty[Double]
 
   def insertTvoc(tvoc: Option[Int]): MeasurementBuilder = {
     this.tvoc = tvoc

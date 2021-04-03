@@ -27,10 +27,6 @@ class MeasurementParser(configuration: OrganicSensorClientConfiguration) {
   def parse(raw: String): Option[Measurement] = {
     val measurementBuilder = new MeasurementBuilder()
 
-    if (raw.trim.isEmpty) {
-      Option.empty
-    }
-
     raw
       .split("\n")(0)
       .trim
