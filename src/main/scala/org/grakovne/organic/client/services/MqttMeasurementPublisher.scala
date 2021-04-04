@@ -3,6 +3,7 @@ package org.grakovne.organic.client.services
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttException._
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.grakovne.organic.client.configuration.OrganicSensorClientConfiguration
@@ -37,15 +38,26 @@ class MqttMeasurementPublisher(configuration: OrganicSensorClientConfiguration) 
 
   private def connectMqtt(): Unit =
     try {
-      mqttClient.connect(new MqttConnectOptions())
+      mqttClient.connect(buildConnectionOptions)
     } catch {
       case exception: MqttException =>
-        if (exception.getReasonCode != MqttException.REASON_CODE_CLIENT_CONNECTED) {
+        if (isConnectionFailed(exception)) {
           reconnectOnException(exception)
         }
       case exception: Exception =>
         reconnectOnException(exception)
     }
+
+  private def isConnectionFailed(exception: MqttException) = exception.getReasonCode match {
+    case REASON_CODE_CLIENT_CONNECTED | REASON_CODE_CONNECT_IN_PROGRESS => false
+    case _ => true
+  }
+
+  private def buildConnectionOptions = {
+    val options = new MqttConnectOptions()
+    options.setAutomaticReconnect(true)
+    options
+  }
 
   private def reconnectOnException(exception: Exception): Unit = {
     log.error(s"Unable to connect to MQTT server due: $exception, retrying in 1 second")
