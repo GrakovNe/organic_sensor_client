@@ -15,8 +15,8 @@ class MeasurementParser(configuration: OrganicSensorClientConfiguration) {
     val value = data.lastOption.map(_.trim)
 
     name.map {
-      case configuration.tvocKey => builder.insertTvoc(value.flatMap(_.toIntOption))
-      case configuration.dioxideKey => builder.insertCarbonDioxide(value.flatMap(_.toIntOption))
+      case configuration.tvocKey => builder.insertTvoc(value.flatMap(_.toDoubleOption))
+      case configuration.dioxideKey => builder.insertCarbonDioxide(value.flatMap(_.toDoubleOption))
       case configuration.temperatureKey => builder.insertTemperature(value.flatMap(_.toDoubleOption))
       case configuration.humidityKey => builder.insertHumidity(value.flatMap(_.toDoubleOption))
       case unwanted => log.warn(s"Unable to parse string: $unwanted as measurement result")
