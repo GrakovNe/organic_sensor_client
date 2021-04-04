@@ -35,14 +35,21 @@ class SerialPortReader(name: String) {
 
   @tailrec
   private def requirePort(name: String): SerialPort = {
-    val port = InfinitiveRetry().retry(
+
+    val port: SerialPort = InfinitiveRetry().retry(
       () => {
-        SerialPort.getCommPorts
-          .filter(_.getDescriptivePortName == name)
+        SerialPort
+          .getCommPorts
           .toList
-          .headOption
+          .find(_.getDescriptivePortName == name) match {
+          case Some(value) => Option(value)
+          case None =>
+            log.error(s"Unable to open port $name. Available ports is\n: ${SerialPort.getCommPorts.mkString("\n")}")
+            Option.empty
+        }
       },
-      Option(s"Unable to find the only one port with name $name"))
+      Option(s"Unable to find the only one port with name $name")
+    )
 
     port.openPort()
     port.isOpen match {

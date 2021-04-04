@@ -4,7 +4,6 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.MqttException.REASON_CODE_CLIENT_CONNECTED
-import org.eclipse.paho.client.mqttv3.MqttException.REASON_CODE_CONNECT_IN_PROGRESS
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.grakovne.organic.client.common.InfinitiveRetry
@@ -15,6 +14,10 @@ import org.grakovne.organic.client.services.MqttMeasurementPublisher.buildConnec
 import org.grakovne.organic.client.services.MqttMeasurementPublisher.isConnectionFailed
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 class MqttMeasurementPublisher(configuration: OrganicSensorClientConfiguration) {
 
@@ -38,13 +41,9 @@ class MqttMeasurementPublisher(configuration: OrganicSensorClientConfiguration) 
     }
   }
 
-  private def connectMqtt(): Boolean = {
-    try {
-      mqttClient.connect(buildConnectionOptions)
-      mqttClient.isConnected
-    } catch {
-      case ex: MqttException => isConnectionFailed(ex)
-    }
+  private def connectMqtt(): Boolean = Try(mqttClient.connect(buildConnectionOptions)) match {
+    case Success(_) => true
+    case Failure(exception) => !isConnectionFailed(exception)
   }
 
   private def openConnection(): MqttAsyncClient = InfinitiveRetry().retry(
@@ -65,8 +64,13 @@ object MqttMeasurementPublisher {
   def buildConnection(host: String): MqttAsyncClient =
     new MqttAsyncClient(host, MqttAsyncClient.generateClientId, new MemoryPersistence)
 
-  private def isConnectionFailed(exception: MqttException) = exception.getReasonCode match {
-    case REASON_CODE_CLIENT_CONNECTED | REASON_CODE_CONNECT_IN_PROGRESS => false
+  private def isConnectionFailed(exception: Throwable) = exception match {
+    case ex: MqttException => isMqttConnectionFailed(ex)
+    case _: Exception => true
+  }
+
+  private def isMqttConnectionFailed(ex: MqttException): Boolean = ex.getReasonCode match {
+    case REASON_CODE_CLIENT_CONNECTED => false
     case _ => true
   }
 
