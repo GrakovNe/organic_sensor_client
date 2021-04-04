@@ -1,11 +1,13 @@
 package org.grakovne.organic.client.services
 
 import com.fazecast.jSerialComm.SerialPort
+import org.grakovne.organic.client.common.InfinitiveRetry
 import org.slf4j.{Logger, LoggerFactory}
+
+import scala.annotation.tailrec
 
 class SerialPortReader(name: String) {
 
-  private val second_in_mills = 1000
   val log: Logger = LoggerFactory.getLogger(this.getClass)
   private val port = requirePort(name)
 
@@ -23,24 +25,26 @@ class SerialPortReader(name: String) {
   }
 
   private def blockingWaitForData(): Unit = {
-    while (port.bytesAvailable() == 0) {
-      Thread.sleep(second_in_mills)
-    }
+    InfinitiveRetry().retry(() => {
+      port.bytesAvailable() match {
+        case 0 => None
+        case other => Some(other)
+      }
+    })
   }
 
+  @tailrec
   private def requirePort(name: String): SerialPort = {
-    val port = SerialPort.getCommPorts
-      .filter(_.getDescriptivePortName == name)
-      .toList match {
-      case head :: Nil => head
-      case Nil | _ :: _ :: _ =>
-        log.error(s"Unable to find the only one port with name $name")
-        Thread.sleep(second_in_mills)
-        requirePort(name)
-    }
+    val port = InfinitiveRetry().retry(
+      () => {
+        SerialPort.getCommPorts
+          .filter(_.getDescriptivePortName == name)
+          .toList
+          .headOption
+      },
+      Option(s"Unable to find the only one port with name $name"))
 
     port.openPort()
-
     port.isOpen match {
       case true => port
       case false => requirePort(name)
