@@ -8,4 +8,10 @@ case class OrganicSensorClientConfiguration(
   temperatureKey: String,
   humidityKey: String,
   measurementsDelimiter: String,
-  measurementSeparator: String)
+  measurementSeparator: String,
+  mqttHost: String,
+  mqttTvocTopic: String,
+  mqttDioxideTopic: String,
+  mqttTemperatureTopic: String,
+  mqttHumidityTopic: String
+)

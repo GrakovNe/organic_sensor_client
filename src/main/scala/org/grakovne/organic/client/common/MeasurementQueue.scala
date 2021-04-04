@@ -3,6 +3,8 @@ package org.grakovne.organic.client.common
 import org.grakovne.organic.client.messages.Measurement
 
 import scala.collection.mutable
+import scala.math.BigDecimal.RoundingMode
+import scala.math.BigDecimal.RoundingMode.RoundingMode
 
 class MeasurementQueue(limit: Int) extends mutable.Queue[Measurement] {
 
@@ -13,8 +15,10 @@ class MeasurementQueue(limit: Int) extends mutable.Queue[Measurement] {
     humidity = meanValue(_.humidity)
   )
 
-  private def meanValue(extractor: (Measurement => Double)): Double =
-    this.map(extractor).sum / (if (this.isEmpty) 1 else this.size)
+  private def meanValue(extractor: (Measurement => Double)): Double = {
+    val rawMeanValue = this.map(extractor).sum / (if (this.isEmpty) 1 else this.size)
+    BigDecimal(rawMeanValue).setScale(2, RoundingMode.HALF_UP).doubleValue
+  }
 
   def addMeasurementAndGetMeanValue(element: Measurement): Measurement = {
     super.enqueue(element)
