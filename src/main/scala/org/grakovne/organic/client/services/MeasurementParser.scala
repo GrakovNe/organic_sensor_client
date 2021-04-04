@@ -1,8 +1,10 @@
 package org.grakovne.organic.client.services
 
 import org.grakovne.organic.client.configuration.OrganicSensorClientConfiguration
-import org.grakovne.organic.client.messages.{Measurement, MeasurementBuilder}
-import org.slf4j.{Logger, LoggerFactory}
+import org.grakovne.organic.client.messages.Measurement
+import org.grakovne.organic.client.messages.MeasurementBuilder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class MeasurementParser(configuration: OrganicSensorClientConfiguration) {
 
